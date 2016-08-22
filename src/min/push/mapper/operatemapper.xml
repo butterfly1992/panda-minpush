@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="min.push.mapper.OperateMapper">
+	<select id="valid" parameterType="param" resultType="actuser">  
+         <![CDATA[
+          SELECT imei FROM MP_ACTIVEUSER WHERE imei=#{imei} and appid=#{appid} and version=#{version}
+         ]]>
+	</select>
+	<insert id="recordActuser" parameterType="param"
+		useGeneratedKeys="true">  
+         <![CDATA[
+   INSERT INTO  MP_ACTIVEUSER (imei,imsi,appid,DATE,VERSION) VALUES (#{imei},#{imsi},#{appid},#{time},#{version});       
+         ]]>
+	</insert>
+	<select id="findindex" parameterType="param" resultType="req">  
+         <![CDATA[
+              select lookindex,clickindex,DOWNLOADINDEX downindex,setupindex from  ${imsitab}  where imei=#{imei} and imsi=#{imsi} order by date desc 
+         ]]>
+	</select>
+	<update id="update" parameterType="param">
+		UPDATE ${imsitab} SET
+		<if test="setindex!=null and setindex!=''">
+			SETUPINDEX =CONCAT(IFNULL(SETUPINDEX,''),',',#{setindex} )
+		</if>
+		WHERE imei=#{imei} and imsi=#{imsi}
+	</update>
+	<insert id="insertop" parameterType="param" useGeneratedKeys="true">
+         <![CDATA[
+     INSERT INTO ${imsitab}  (imei,imsi,DATE,lookindex,clickindex,downloadindex,setupindex) VALUES (#{imei},#{imsi},#{time},#{lindex},#{cindex},#{dindex},#{setindex})
+      ]]>
+	</insert>
+	<update id="updateSoft" parameterType="param">
+		UPDATE MP_OPERATE SET
+		<if test="lindex!=null and lindex!=''">
+			look =look+1
+		</if>
+		<if test="cindex!=null and cindex!=''">
+			click =click+1
+		</if>
+		<if test="dindex!=null and dindex!=''">
+			download =download+1
+		</if>
+		<if test="setindex!=null and setindex!=''">
+			setup =setup+1
+		</if>
+		WHERE appid=#{appid} and softid=#{sid} and version=#{version} and
+		date=#{time}
+	</update>
+	<insert id="insertSoft" parameterType="param" useGeneratedKeys="true">
+         <![CDATA[
+    INSERT INTO  MP_OPERATE (appid,softid,look,click,download,setup,DATE,VERSION)
+VALUES (#{appid},#{sid},IF(#{lindex},1,0),IF(#{cindex},1,0),IF(#{dindex},1,0),IF(#{setindex},1,0),#{time},#{version})
+      ]]>
+	</insert>
+
+	<update id="updateNotice" parameterType="param">
+		UPDATE MP_NOTICEOPER SET
+		<if test="oper==-1">
+			notice =notice+1
+		</if>
+		<if test="oper==0">
+			screen =screen+1
+		</if>
+		WHERE appid=#{appid} and nid=#{nid} and version=#{version} and
+		date=#{time}
+	</update>
+	<insert id="insertNotice" parameterType="param"
+		useGeneratedKeys="true">
+         <![CDATA[
+    INSERT INTO  MP_NOTICEOPER (appid,nid,notice,screen,DATE,VERSION)
+VALUES (#{appid},#{nid}, IF(#{oper}='-1',1,0),IF(#{oper}='0',1,0),#{time},#{version})
+      ]]>
+	</insert>
+	
+	<select id="getsoftid" parameterType="param" resultType="param">  
+         <![CDATA[
+            SELECT id sid FROM DG_SOFT WHERE softindex=#{sindex}
+         ]]>
+	</select>
+</mapper>

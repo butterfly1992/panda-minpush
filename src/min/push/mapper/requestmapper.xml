@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="min.push.mapper.RequestMapper">
+	<!-- id和mapper接口中的方法名对应，resultType使用mybatis.xml中的别名 -->
+	<select id="updgrade" parameterType="param" resultType="param">  
+         <![CDATA[
+       SELECT id,version FROM DG_SDKVERSION WHERE VERSION=#{version} and id=#{id}
+         ]]>
+	</select>
+	<select id="mpswitch" parameterType="param" resultType="app">  
+         <![CDATA[
+           SELECT mpswitch FROM DG_APP WHERE id=#{appid}
+         ]]>
+	</select>
+	<select id="noticeinfo" parameterType="param" resultType="Notice">  
+         <![CDATA[
+            SELECT id nid, logo,title,summary,bgimg,theme,times,titleimg FROM MP_NOTICE WHERE theme=#{mptype} order by id  LIMIT 0,1
+         ]]>
+	</select>
+	<select id="getsetupindex" parameterType="param" resultType="java.lang.String">  
+         <![CDATA[
+            select setupindex from  ${imsitab}  where imei=#{imei} and imsi=#{imsi} order by date desc 
+         ]]>
+	</select>
+	<resultMap type="Soft" id="softResult">
+		<id column="id" property="id" />
+		<result column="logo" property="logo" />
+		<result column="name" property="name" />
+		<result column="apk" property="apkurl" />
+		<result column="softindex" property="sindex" />
+		<result column="pck" property="pck" />
+		<result column="sizes" property="sizes" />
+		<result column="inf02" property="info2" />
+		<result column="downs" property="downs" />
+	</resultMap>
+	<select id="softinfo" parameterType="param" resultMap="softResult">  
+         <![CDATA[
+      SELECT *,FLOOR((RAND() * 40)+10) downs  FROM DG_SOFT WHERE mpstatus=1 AND   FIND_IN_SET(#{theme},theme) ORDER BY  mpcode 
+         ]]>
+	</select>
+	<select id="softs" parameterType="param" resultMap="softResult">  
+         <![CDATA[
+    SELECT *,FLOOR((RAND() * 40)+10) downs  FROM DG_SOFT WHERE mpstatus=1 AND FIND_IN_SET(#{theme},theme)  and (carrieroperator=0 or carrieroperator=#{operation}) ORDER BY  mpcode 
+         ]]>
+	</select>
+</mapper>
